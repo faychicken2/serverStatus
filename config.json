@@ -1,0 +1,8 @@
+{
+    "host": "falcon-server",
+    "tcp_port": 22,
+    "interval_secs": 5,
+    "ping_timeout_ms": 1500,
+    "tcp_timeout_secs": 1.5
+  }
+  
