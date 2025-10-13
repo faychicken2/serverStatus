@@ -117,11 +117,21 @@ def short_err(e: str, maxlen=80):
     return (e[:maxlen] + "…") if len(e) > maxlen else e
 
 def ping_icmp(host: str, timeout_ms: int):
-    """Uses Windows ping.exe (no admin). Returns (ok, latency_ms, err)"""
+    """Uses Windows ping.exe without showing a console window. Returns (ok, latency_ms, err)."""
     try:
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # tell Windows to honor wShowWindow
+        si.wShowWindow = 0                             # 0 = SW_HIDE
+
+        CREATE_NO_WINDOW = 0x08000000  # prevent a new console window
+
         out = subprocess.run(
             ["ping", "-n", "1", "-w", str(timeout_ms), host],
-            capture_output=True, text=True, encoding="utf-8"
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            startupinfo=si,
+            creationflags=CREATE_NO_WINDOW
         )
         txt = out.stdout or out.stderr or ""
         if out.returncode == 0 and "TTL=" in txt.upper():
@@ -137,6 +147,7 @@ def ping_icmp(host: str, timeout_ms: int):
             return False, None, txt.strip()
     except Exception as e:
         return False, None, str(e)
+
 
 def tcp_check(host: str, port: int, timeout_s: float):
     """TCP connect test. Returns (ok, latency_ms, err)"""
