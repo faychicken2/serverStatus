@@ -109,7 +109,7 @@ py devbox_watcher.py --host 10.0.0.12 --tcp-port 22 --interval 3 --save
 
 ---
 
-## Build a one-file EXE
+## Build a one-file EXE on Windows
 
 ```powershell
 py -m pip install --upgrade pyinstaller
@@ -126,7 +126,40 @@ py -m PyInstaller --onefile --windowed --icon app.ico --name DevboxWatcher devbo
 
 ---
 
-## Start at Login
+## Build a Windows EXE **from Linux** (Docker cross-compile)
+
+Create a `build.sh` in your project folder:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# From your project folder (has devbox_watcher.py)
+# Create a quick requirements.txt (or edit to match yours)
+printf "pystray\nPillow\n" > requirements.txt
+
+# Run a Windows-targeting PyInstaller inside Docker
+docker run --rm -v "$PWD":/src -w /src \
+  cdrx/pyinstaller-windows:python3 \
+  bash -lc "pip install -r requirements.txt && \
+            pyinstaller --onefile --windowed --name DevboxWatcher devbox_watcher.py"
+
+echo "Built EXE at ./dist/DevboxWatcher.exe"
+```
+
+Make it executable and run:
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+> Note: You’re cross-building for Windows; the output EXE runs on Windows. If the image lags on very new Python versions, target Python **3.12**. 
+
+> Note: I made a way to build it in linux for situations where you have admin in linux but but windows. 
+
+---
+
+## Start at Login (Windows)
 
 ### Option A — Startup folder (simple)
 1. `Win + R` → `shell:startup` → Enter  
@@ -190,4 +223,3 @@ endlocal
 ## License
 
 MIT (or your preferred license)
-
