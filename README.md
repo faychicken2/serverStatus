@@ -222,4 +222,4 @@ endlocal
 
 ## License
 
-MIT (or your preferred license)
+MIT
